@@ -42,6 +42,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             Authentication authentication
     ) {
 
+        System.out.println("success");
     }
 
     // 로그인 실패 시 실행하는 메서드
@@ -50,6 +51,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             HttpServletRequest request,
             HttpServletResponse response,
             AuthenticationException failed) {
-
+        System.out.println("fail");
     }
 }
