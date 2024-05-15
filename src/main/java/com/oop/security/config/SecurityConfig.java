@@ -1,6 +1,7 @@
 package com.oop.security.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.oop.security.jwt.JWTFilter;
 import com.oop.security.jwt.JWTUtil;
 import com.oop.security.jwt.LoginFilter;
 import org.springframework.context.annotation.Bean;
@@ -66,6 +67,9 @@ public class SecurityConfig {
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 );
+
+        http
+                .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
 
         http
                 .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, objectMapper), UsernamePasswordAuthenticationFilter.class);
