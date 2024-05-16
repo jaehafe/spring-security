@@ -2,6 +2,8 @@ package com.oop.security.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.oop.security.dto.CustomUserDetails;
+import com.oop.security.entity.RefreshEntity;
+import com.oop.security.repository.RefreshRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,6 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -24,12 +27,14 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
     private final ObjectMapper objectMapper;
+    private RefreshRepository refreshRepository;
 
-    public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil, ObjectMapper objectMapper) {
+    public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil, ObjectMapper objectMapper, RefreshRepository refreshRepository) {
 
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.objectMapper = objectMapper;
+        this.refreshRepository = refreshRepository;
     }
 
     @Override
@@ -78,10 +83,25 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String access = jwtUtil.createJwt("access", username, role, 600000L);
         String refresh = jwtUtil.createJwt("refresh", username, role, 8640000L);
 
+        // Refresh 토큰 저장
+        addRefreshEntity(username, refresh, 8640000L);
+
         // 응답  설정
         response.setHeader("access", access);
         response.addCookie(createCookie("refresh", refresh));
         response.setStatus(HttpStatus.OK.value());
+    }
+
+    private void addRefreshEntity(String username, String refresh, Long expiredMs) {
+
+        Date date = new Date(System.currentTimeMillis() + expiredMs);
+
+        RefreshEntity refreshEntity = new RefreshEntity();
+        refreshEntity.setUsername(username);
+        refreshEntity.setRefresh(refresh);
+        refreshEntity.setExpiration(date.toString());
+
+        refreshRepository.save(refreshEntity);
     }
 
     // 로그인 실패 시 실행하는 메서드
