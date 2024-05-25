@@ -2,9 +2,11 @@ package com.oop.security.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.oop.security.dto.CustomUserDetails;
+import com.oop.security.dto.LoginDTO;
 import com.oop.security.entity.RefreshEntity;
 import com.oop.security.repository.RefreshRepository;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,8 +17,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.util.StreamUtils;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -40,18 +44,30 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
 
-//        String username = obtainUsername(request);
-//        String password = obtainPassword(request);
-        String username = null;
-        String password = null;
+        LoginDTO loginDTO = new LoginDTO();
+
+//        try {
+//            // JSON 형식의 바디를 파싱하여 사용자 이름과 비밀번호를 추출합니다.
+//            Map<String, String> requestMap = objectMapper.readValue(request.getInputStream(), Map.class);
+//            username = requestMap.get("username");
+//            password = requestMap.get("password");
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+
         try {
-            // JSON 형식의 바디를 파싱하여 사용자 이름과 비밀번호를 추출합니다.
-            Map<String, String> requestMap = objectMapper.readValue(request.getInputStream(), Map.class);
-            username = requestMap.get("username");
-            password = requestMap.get("password");
+            ObjectMapper objectMapper = new ObjectMapper();
+            ServletInputStream inputStream = request.getInputStream();
+            String messageBody = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
+            loginDTO = objectMapper.readValue(messageBody, LoginDTO.class);
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        String username = loginDTO.getUsername();
+        String password = loginDTO.getPassword();
+
 
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                 username,
