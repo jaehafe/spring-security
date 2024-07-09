@@ -1,12 +1,10 @@
 package com.oop.security.dto;
 
 import com.oop.security.entity.UserEntity;
-import org.springframework.aop.scope.ScopedObject;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
 import java.util.ArrayList;
 import java.util.Collection;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 public class CustomUserDetails implements UserDetails {
 

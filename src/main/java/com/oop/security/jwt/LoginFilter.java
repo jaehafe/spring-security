@@ -1,7 +1,6 @@
 package com.oop.security.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.oop.security.dto.CustomUserDetails;
 import com.oop.security.dto.LoginDTO;
 import com.oop.security.entity.RefreshEntity;
 import com.oop.security.repository.RefreshRepository;
@@ -10,6 +9,11 @@ import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,13 +23,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.util.StreamUtils;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Map;
-
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
@@ -33,7 +30,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private final ObjectMapper objectMapper;
     private RefreshRepository refreshRepository;
 
-    public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil, ObjectMapper objectMapper, RefreshRepository refreshRepository) {
+    public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil,
+            ObjectMapper objectMapper, RefreshRepository refreshRepository) {
 
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
@@ -42,7 +40,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     }
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+    public Authentication attemptAuthentication(HttpServletRequest request,
+            HttpServletResponse response) throws AuthenticationException {
 
         LoginDTO loginDTO = new LoginDTO();
 
@@ -68,24 +67,16 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String username = loginDTO.getUsername();
         String password = loginDTO.getPassword();
 
-
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                username,
-                password,
-                null
-        );
+                username, password, null);
 
         return authenticationManager.authenticate(authToken);
     }
 
     // 로그인 성공 시 실행하는 메서드 (여기서 JWT를 발급하면 됨)
     @Override
-    protected void successfulAuthentication(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain chain,
-            Authentication authentication
-    ) {
+    protected void successfulAuthentication(HttpServletRequest request,
+            HttpServletResponse response, FilterChain chain, Authentication authentication) {
 
         // 유저 정보
         String username = authentication.getName();
@@ -122,10 +113,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     // 로그인 실패 시 실행하는 메서드
     @Override
-    protected void unsuccessfulAuthentication(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            AuthenticationException failed) {
+    protected void unsuccessfulAuthentication(HttpServletRequest request,
+            HttpServletResponse response, AuthenticationException failed) {
 
         response.setStatus(401);
     }
