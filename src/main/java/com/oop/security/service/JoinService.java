@@ -13,17 +13,17 @@ public class JoinService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public JoinService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
-
         this.userRepository = userRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
     public void joinProcess(JoinDTO joinDTO) {
 
+        String email = joinDTO.getEmail();
         String username = joinDTO.getUsername();
         String password = joinDTO.getPassword();
 
-        Boolean isExist = userRepository.existsByUsername(username);
+        Boolean isExist = userRepository.existsByEmail(email);
 
         if (isExist) {
 
@@ -31,6 +31,7 @@ public class JoinService {
         }
 
         UserEntity data = new UserEntity();
+        data.setEmail(email);
         data.setUsername(username);
         data.setPassword(bCryptPasswordEncoder.encode(password));
         data.setRole("ROLE_ADMIN");
