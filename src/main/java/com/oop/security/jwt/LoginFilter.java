@@ -60,11 +60,16 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             String messageBody = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
             loginDTO = objectMapper.readValue(messageBody, LoginDTO.class);
 
+            System.out.println("loginDTO>>>>" + " " + loginDTO);
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        String username = loginDTO.getUsername();
+//        String username = loginDTO.getUsername();
+        String username = loginDTO.getEmail();
+        System.out.println("username>>>>" + " " + username);
+//        System.out.println("username1>>>>" + " " + username1);
         String password = loginDTO.getPassword();
 
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
